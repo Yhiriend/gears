@@ -1,107 +1,67 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import Gear from './components/Gear.vue'
+import OneGear from './components/OneGear.vue'
+import { ref } from 'vue'
 
-const rotation = ref(0)
-let frameId: number
+const isPlaying = ref(false)
 
-const proximidad = ref(60) // valor inicial, rango 0 a 120
-
-const rotacionInicial1 = ref(30)
-const rotacionInicial2 = ref(134)
-const rotacionInicial3 = ref(30)
-const animando = ref(false)
-
-const center = { x: 200, y: 200 }
-const angles = [225, 98, 370] // grados para los vértices del triángulo
-const sizes = [160, 120, 100]
-
-const pos = computed(() => {
-  // proximidad: 0 = centro, 120 = borde
-  const r = proximidad.value
-  return angles.map((deg, i) => {
-    const rad = deg * Math.PI / 180
-    const x = center.x + r * Math.cos(rad) - sizes[i] / 2
-    const y = center.y + r * Math.sin(rad) - sizes[i] / 2
-    return { left: `${x}px`, top: `${y}px` }
-  })
-})
-
-const animate = () => {
-  if (animando.value) {
-    rotation.value += 0.3
-    frameId = requestAnimationFrame(animate)
-  }
+const toggleAnimation = () => {
+  isPlaying.value = !isPlaying.value
 }
 
-const play = () => {
-  if (!animando.value) {
-    animando.value = true
-    frameId = requestAnimationFrame(animate)
+const handleRotationComplete = (count: number) => {
+  if (count === 3) {
+    isPlaying.value = false
   }
 }
-
-onMounted(() => {
-  frameId = requestAnimationFrame(animate)
-})
-onUnmounted(() => {
-  cancelAnimationFrame(frameId)
-})
 </script>
 
 <template>
-  <div style="width: 400px; margin: 0 auto;">
-    <label style="display: block; margin-bottom: 8px;">
-      Proximidad al centro:
-      <input type="range" min="0" max="120" v-model="proximidad" />
-      {{ proximidad }}
-    </label>
-    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-      <label>Rotación inicial Gear 1:
-        <input type="number" v-model.number="rotacionInicial1" min="0" max="360" style="width: 60px;" />°
-      </label>
-      <label>Rotación inicial Gear 2:
-        <input type="number" v-model.number="rotacionInicial2" min="0" max="360" style="width: 60px;" />°
-      </label>
-      <label>Rotación inicial Gear 3:
-        <input type="number" v-model.number="rotacionInicial3" min="0" max="360" style="width: 60px;" />°
-      </label>
-      <button @click="play" :disabled="animando">Play</button>
+  <div class="main">
+    <div class="wrapper">
+      <OneGear size="normal" :teeth="6" :duration="6" :clockwise="true" :top="20" :left="47" :line1Angle="100" :line2Angle="138" :isPlaying="isPlaying" />
+      <OneGear size="small" :teeth="4" :duration="4" :top="125" :left="145" :line1Angle="315" :line2Angle="78" :isPlaying="isPlaying" />
+      <OneGear size="big" :teeth="8" :duration="8" :top="0" :left="220" :clockwise="true" :line1Angle="280" :line2Angle="258" :isPlaying="isPlaying" @rotation-complete="handleRotationComplete" />
     </div>
-    <div style="position: relative; width: 400px; height: 400px;">
-      <!-- Engranaje grande -->
-      <Gear :size="160" :line1Angle="6.2" :line2Angle="0.75"
-        :rotation="rotation + rotacionInicial1"
-        :labels="['A','B']"
-        :style="{position: 'absolute', ...pos[0]}" />
-      <!-- Engranaje mediano (gira en sentido contrario) -->
-      <Gear :size="120" :line1Angle="2.05" :line2Angle="3.2"
-        :rotation="-rotation + rotacionInicial2"
-        :labels="['C','D']"
-        :style="{position: 'absolute', ...pos[1]}" />
-      <!-- Engranaje pequeño -->
-      <Gear :size="90" :line1Angle="3.1" :line2Angle="1.9"
-        :rotation="rotation + rotacionInicial3"
-        :labels="['E','F']"
-        :style="{position: 'absolute', ...pos[2]}" />
-      
-    </div>
+    <button class="play-pause-btn" @click="toggleAnimation">
+      {{ isPlaying ? '⏸️' : '▶️' }}
+    </button>
   </div>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<style>
+.main {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #111;
+  gap: 20px;
 }
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.wrapper {
+  width: 460px;
+  height: 240px;
+  position: relative;
+  background: transparent;
 }
 
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.play-pause-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.play-pause-btn:hover {
+  transform: scale(1.1);
+}
+
+.play-pause-btn:active {
+  transform: scale(0.95);
 }
 </style>
