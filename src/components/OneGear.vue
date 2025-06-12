@@ -9,7 +9,7 @@
       <div class="red-line line2" :style="{ transform: 'rotate(' + line2Angle + 'deg)' }"></div>
     </div>
     <div class="rotation-counter">
-      Vueltas: {{ rotationCount }}
+      Vueltas: {{ actualRotationCount }}
     </div>
   </div>
 </template>
@@ -31,6 +31,7 @@ interface Props {
   line1Angle?: number
   line2Angle?: number
   isPlaying?: boolean
+  rotationCount?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,14 +45,22 @@ const props = withDefaults(defineProps<Props>(), {
   bottom: 'auto',
   line1Angle: 0,
   line2Angle: 180,
-  isPlaying: true
+  isPlaying: true,
+  rotationCount: 0
 })
 
 const emit = defineEmits(['rotation-complete'])
 
-const rotationCount = ref(0)
 let animationStartTime: number | null = null
 let lastRotationTime: number | null = null
+
+// Calculamos las vueltas reales basadas en la duración relativa
+const actualRotationCount = computed(() => {
+  // El engranaje grande (4s) es nuestra referencia
+  const referenceDuration = 4
+  const ratio = referenceDuration / props.duration
+  return Math.round(props.rotationCount * ratio)
+})
 
 const updateRotationCount = () => {
   if (!props.isPlaying) return
@@ -67,9 +76,8 @@ const updateRotationCount = () => {
   const rotationDuration = props.duration * 1000
 
   if (elapsedTime >= rotationDuration) {
-    rotationCount.value++
     lastRotationTime = now
-    emit('rotation-complete', rotationCount.value)
+    emit('rotation-complete', props.rotationCount + 1)
   }
 }
 

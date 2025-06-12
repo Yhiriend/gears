@@ -3,12 +3,17 @@ import OneGear from './components/OneGear.vue'
 import { ref } from 'vue'
 
 const isPlaying = ref(false)
+const rotationCount = ref(0)
 
 const toggleAnimation = () => {
   isPlaying.value = !isPlaying.value
+  if (!isPlaying.value) {
+    rotationCount.value = 0
+  }
 }
 
 const handleRotationComplete = (count: number) => {
+  rotationCount.value = count
   if (count === 3) {
     isPlaying.value = false
   }
@@ -18,9 +23,9 @@ const handleRotationComplete = (count: number) => {
 <template>
   <div class="main">
     <div class="wrapper">
-      <OneGear size="normal" :teeth="6" :duration="6" :clockwise="true" :top="20" :left="47" :line1Angle="100" :line2Angle="138" :isPlaying="isPlaying" />
-      <OneGear size="small" :teeth="4" :duration="4" :top="125" :left="145" :line1Angle="315" :line2Angle="78" :isPlaying="isPlaying" />
-      <OneGear size="big" :teeth="8" :duration="8" :top="0" :left="220" :clockwise="true" :line1Angle="280" :line2Angle="258" :isPlaying="isPlaying" @rotation-complete="handleRotationComplete" />
+      <OneGear size="normal" :teeth="6" :duration="3" :clockwise="true" :top="20" :left="47" :line1Angle="100" :line2Angle="138" :isPlaying="isPlaying" :rotationCount="rotationCount" />
+      <OneGear size="small" :teeth="4" :duration="2" :top="125" :left="145" :line1Angle="315" :line2Angle="78" :isPlaying="isPlaying" :rotationCount="rotationCount" />
+      <OneGear size="big" :teeth="8" :duration="4" :top="0" :left="220" :clockwise="true" :line1Angle="280" :line2Angle="258" :isPlaying="isPlaying" :rotationCount="rotationCount" @rotation-complete="handleRotationComplete" />
     </div>
     <button class="play-pause-btn" @click="toggleAnimation">
       {{ isPlaying ? '⏸️' : '▶️' }}
